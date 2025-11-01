@@ -1,0 +1,47 @@
+# Nama workflow
+name: Deploy to GitHub Pages
+
+# Kapan workflow ini berjalan
+on:
+  # Akan berjalan setiap kali ada push ke branch 'main' (atau branch utama Anda)
+  push:
+    branches:
+      - main
+
+  # Memberikan opsi untuk menjalankan workflow secara manual dari GitHub UI
+  workflow_dispatch:
+
+# Mengatur izin yang diperlukan
+permissions:
+  contents: read
+  pages: write # Izin untuk menulis ke Pages
+  id-token: write # Izin untuk autentikasi OIDC
+
+# .github/workflows/deploy.yml (Versi Sederhana Tanpa Build)
+
+# ... (header, on:, permissions, jobs) ...
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout Repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Pages
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      # 3. Upload Artifact
+      # Menggunakan folder 'dist' yang sudah ada di Git.
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+      # 4. Deploy ke Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
