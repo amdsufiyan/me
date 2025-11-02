@@ -1,47 +1,36 @@
-# Nama workflow
-name: Deploy to GitHub Pages
+# .github/workflows/deploy.yml (Menggunakan Branch 'gh-pages')
 
-# Kapan workflow ini berjalan
+name: Deploy to gh-pages branch
+
 on:
-  # Akan berjalan setiap kali ada push ke branch 'main' (atau branch utama Anda)
   push:
     branches:
-      - main
-
-  # Memberikan opsi untuk menjalankan workflow secara manual dari GitHub UI
+      - main # Hanya jalankan ketika push ke branch utama
   workflow_dispatch:
-
-# Mengatur izin yang diperlukan
-permissions:
-  contents: read
-  pages: write # Izin untuk menulis ke Pages
-  id-token: write # Izin untuk autentikasi OIDC
-
-# .github/workflows/deploy.yml (Versi Sederhana Tanpa Build)
-
-# ... (header, on:, permissions, jobs) ...
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout Repository
-      - name: Checkout Repository
+      - name: Checkout Repo
         uses: actions/checkout@v4
-
-      # 2. Setup Pages
-      - name: Setup GitHub Pages
-        uses: actions/configure-pages@v5
-
-      # 3. Upload Artifact
-      # Menggunakan folder 'dist' yang sudah ada di Git.
-      - name: Upload Artifact
-        uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          # Diperlukan untuk push ke branch lain
+          fetch-depth: 0
 
-      # 4. Deploy ke Pages
+      # 1. (Jika diperlukan) Instal dan Build aplikasi Anda
+      - name: Install and Build (Jika Anda menggunakan React/Node)
+        run: |
+          npm install
+          npm run build # Harus menghasilkan output di folder 'dist'
+
+      # 2. Deploy ke branch 'gh-pages'
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Kunci: Tentukan folder output
+          publish_dir: ./dist
+          # Deploy ke branch 'gh-pages'
+          publish_branch: gh-pages
